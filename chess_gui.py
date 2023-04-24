@@ -209,7 +209,19 @@ def main():
                 elif e.key == py.K_u:
                     game_state.undo_move()
                     print(len(game_state.move_log))
-
+        if valid:
+            board = "-board-\n"
+            for i in range(8):
+                for j in range(8):
+                    if game_state.is_valid_piece(i, j):
+                        board += game_state.get_piece(i, j).get_name()
+                        board += " "
+                    else:
+                        board += Player.EMPTY
+                        board += " "
+                board += '\n'
+            print(board)
+            valid = False
         draw_game_state(screen, game_state, valid_moves, square_selected)
 
         endgame = game_state.checkmate_stalemate_checker()
