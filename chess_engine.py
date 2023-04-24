@@ -216,6 +216,16 @@ class game_state:
         else:
             return None
 
+    def get_white_king_location(self):
+        return self._white_king_location
+
+    def get_black_king_location(self):
+        return self._black_king_location
+
+    def is_valid_torn(self, row, col):
+        return ((self.whose_turn() and self.get_piece(row, col).is_player(Player.PLAYER_1)) or
+                (not self.whose_turn() and self.get_piece(row, col).is_player(Player.PLAYER_2)))
+
     # 0 if white lost, 1 if black lost, 2 if stalemate, 3 if not game over
     def checkmate_stalemate_checker(self):
         all_white_moves = self.get_all_legal_moves(Player.PLAYER_1)
