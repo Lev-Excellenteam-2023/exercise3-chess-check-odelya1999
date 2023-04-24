@@ -145,7 +145,10 @@ def main():
         ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
         game_state.move_piece(ai_move[0], ai_move[1], True)
 
-
+    if chess_engine.game_state.whose_turn:
+        logger.info('white started')
+    else:
+        logger.info('black started')
 
     while running:
         for e in py.event.get():
