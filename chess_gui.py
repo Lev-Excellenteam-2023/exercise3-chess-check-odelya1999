@@ -228,12 +228,15 @@ def main():
         if endgame == 0:
             game_over = True
             draw_text(screen, "Black wins.")
+            logger.info('Winner: Black ')
         elif endgame == 1:
             game_over = True
             draw_text(screen, "White wins.")
+            logger.info('Winner: White ')
         elif endgame == 2:
             game_over = True
             draw_text(screen, "Stalemate.")
+            logger.info('Winner:: Stalemate')
 
         clock.tick(MAX_FPS)
         py.display.flip()
