@@ -1,4 +1,3 @@
-
 #
 # The Chess Board class
 # Will store the state of the chess game, print the chess board, find valid moves, store move logs.
@@ -119,6 +118,16 @@ class game_state:
         evaluated_piece = self.get_piece(row, col)
         return (evaluated_piece is not None) and (evaluated_piece != Player.EMPTY)
 
+    def get_white_king_location(self):
+        return self._white_king_location
+
+    def get_black_king_location(self):
+        return self._black_king_location
+
+    def is_valid_torn(self, row, col):
+        return ((self.whose_turn() and self.get_piece(row, col).is_player(Player.PLAYER_1)) or
+                (not self.whose_turn() and self.get_piece(row, col).is_player(Player.PLAYER_2)))
+
     def get_valid_moves(self, starting_square):
         '''
         remove pins from valid moves (unless the pinned piece move can get rid of a check and checks is empty
@@ -215,16 +224,6 @@ class game_state:
             return valid_moves
         else:
             return None
-
-    def get_white_king_location(self):
-        return self._white_king_location
-
-    def get_black_king_location(self):
-        return self._black_king_location
-
-    def is_valid_torn(self, row, col):
-        return ((self.whose_turn() and self.get_piece(row, col).is_player(Player.PLAYER_1)) or
-                (not self.whose_turn() and self.get_piece(row, col).is_player(Player.PLAYER_2)))
 
     # 0 if white lost, 1 if black lost, 2 if stalemate, 3 if not game over
     def checkmate_stalemate_checker(self):
