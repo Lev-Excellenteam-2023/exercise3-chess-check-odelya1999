@@ -10,6 +10,7 @@ import pygame as py
 
 import ai_engine
 from enums import Player
+import logging
 
 """Variables"""
 WIDTH = HEIGHT = 512  # width and height of the chess board
@@ -18,6 +19,22 @@ SQ_SIZE = HEIGHT // DIMENSION  # the size of each of the squares in the board
 MAX_FPS = 15  # FPS for animations
 IMAGES = {}  # images for the chess pieces
 colors = [py.Color("white"), py.Color("gray")]
+
+# Create a logger object
+logger = logging.getLogger('my_logger')
+logger.setLevel(logging.DEBUG)
+
+# Create a file handler
+file_handler = logging.FileHandler('my_logs.log', mode='w')
+file_handler.setLevel(logging.DEBUG)
+
+# Create a formatter and add it to the file handler
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+
+# Add the file handler to the logger
+logger.addHandler(file_handler)
+
 
 # TODO: AI black has been worked on. Mirror progress for other two modes
 def load_images():
@@ -49,6 +66,7 @@ def draw_squares(screen):
         for c in range(DIMENSION):
             color = colors[(r + c) % 2]
             py.draw.rect(screen, color, py.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+
 
 
 def draw_pieces(screen, game_state):
@@ -119,12 +137,45 @@ def main():
     valid_moves = []
     game_over = False
 
+    knight_steps = 0
+    _is_check = 0
+    valid = False
+
     ai = ai_engine.chess_ai()
     game_state = chess_engine.game_state()
+    if chess_engine.game_state.whose_turn:
+        logger.info('white started')
+    else:
+        logger.info('black started')
+
     if human_player is 'b':
+        board = "\n---board---\n"
+        for i in range(8):
+            for j in range(8):
+                if game_state.is_valid_piece(i, j):
+                    board += game_state.get_piece(i, j).get_name()
+                    board += " "
+                else:
+                    board += Player.EMPTY
+                    board += " "
+            board += '\n'
+        logger.info(board)
         ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
+        if game_state.get_piece(ai_move[0][0], ai_move[0][1]).get_name() == 'n':
+            knight_steps += 1
         game_state.move_piece(ai_move[0], ai_move[1], True)
 
+    board = "\n---board---\n"
+    for i in range(8):
+        for j in range(8):
+            if game_state.is_valid_piece(i, j):
+                board += game_state.get_piece(i, j).get_name()
+                board += " "
+            else:
+                board += Player.EMPTY
+                board += " "
+        board += '\n'
+    logger.info(board)
     while running:
         for e in py.event.get():
             if e.type == py.QUIT:
@@ -147,17 +198,35 @@ def main():
                             player_clicks = []
                             valid_moves = []
                         else:
+                            if game_state.is_valid_torn(player_clicks[0][0], player_clicks[0][1]):
+                                if game_state.get_piece(player_clicks[0][0], player_clicks[0][1]).get_name() == 'n':
+                                    knight_steps += 1
+                                if len(game_state.check_for_check(game_state.get_white_king_location(),
+                                                                  Player.PLAYER_1)[0]) == 1:
+                                    _is_check += 1
+                                if len(game_state.check_for_check(game_state.get_black_king_location(),
+                                                                  Player.PLAYER_2)[0]) == 1:
+                                    _is_check += 1
+                                valid = True
                             game_state.move_piece((player_clicks[0][0], player_clicks[0][1]),
                                                   (player_clicks[1][0], player_clicks[1][1]), False)
                             square_selected = ()
                             player_clicks = []
                             valid_moves = []
-
-                            if human_player is 'w':
-                                ai_move = ai.minimax_white(game_state, 3, -100000, 100000, True, Player.PLAYER_2)
-                                game_state.move_piece(ai_move[0], ai_move[1], True)
-                            elif human_player is 'b':
-                                ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
+                            if number_of_players == 1:
+                                ai_move = []
+                                if human_player is 'w':
+                                    ai_move = ai.minimax_white(game_state, 3, -100000, 100000, True, Player.PLAYER_2)
+                                    if len(game_state.check_for_check(game_state.get_black_king_location(),
+                                                                      Player.PLAYER_2)[0]) == 1:
+                                        _is_check += 1
+                                elif human_player is 'b':
+                                    ai_move = ai.minimax_black(game_state, 3, -100000, 100000, True, Player.PLAYER_1)
+                                    if len(game_state.check_for_check(game_state.get_black_king_location(),
+                                                                      Player.PLAYER_2)[0]) == 1:
+                                        _is_check += 1
+                                if game_state.get_piece(ai_move[0][0], ai_move[0][1]).get_name() == 'n':
+                                    knight_steps += 1
                                 game_state.move_piece(ai_move[0], ai_move[1], True)
                     else:
                         valid_moves = game_state.get_valid_moves((row, col))
@@ -174,22 +243,43 @@ def main():
                 elif e.key == py.K_u:
                     game_state.undo_move()
                     print(len(game_state.move_log))
-
+        if valid:
+            board = "\n--board--\n"
+            for i in range(8):
+                for j in range(8):
+                    if game_state.is_valid_piece(i, j):
+                        board += game_state.get_piece(i, j).get_name()
+                        board += " "
+                    else:
+                        board += Player.EMPTY
+                        board += " "
+                board += '\n'
+            logger.info(board)
+            valid = False
         draw_game_state(screen, game_state, valid_moves, square_selected)
 
         endgame = game_state.checkmate_stalemate_checker()
         if endgame == 0:
             game_over = True
             draw_text(screen, "Black wins.")
+            logger.info('Winner: Black ')
         elif endgame == 1:
             game_over = True
             draw_text(screen, "White wins.")
+            logger.info('Winner: White ')
         elif endgame == 2:
             game_over = True
             draw_text(screen, "Stalemate.")
+            logger.info('Winner:: Stalemate')
 
         clock.tick(MAX_FPS)
         py.display.flip()
+
+    if not game_over:
+        logger.info('The game was forcibly stopped')
+
+    logger.info("The general number of the knight's moves is: " + str(knight_steps))
+    logger.info("The final number of chess cases in the game is: " + str(_is_check))
 
     # elif human_player is 'w':
     #     ai = ai_engine.chess_ai()
