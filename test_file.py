@@ -55,3 +55,11 @@ def test_to_get_empty_slot_if_there_is_no_opposing_player_in_it():
     mock_self_knight = Piece.Knight('n', 4, 4, Player.PLAYER_2)
     valid_moves = Piece.Knight.get_valid_peaceful_moves(mock_self_knight, mock_game_state)
     assert len(valid_moves) == 0   # there is an opposing player in all the optional slots that are relevant
+
+
+def test_to_get_empty_slot_if_there_is_no_player_from_the_same_team_in_it():
+    mock_game_state = Mock()
+    mock_game_state.get_piece = lambda row, col: Piece.Rook('r', row, col, Player.PLAYER_2)
+    mock_self_knight = Piece.Knight('n', 4, 4, Player.PLAYER_2)
+    valid_moves = Piece.Knight.get_valid_peaceful_moves(mock_self_knight, mock_game_state)
+    assert len(valid_moves) == 0
