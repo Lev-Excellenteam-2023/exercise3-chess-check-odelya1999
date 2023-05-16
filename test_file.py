@@ -35,3 +35,16 @@ def test_how_many_options_to_eat_i_have_from_the_other_team():
     expected_moves = [(2, 3), (2, 5), (3, 2), (3, 6), (5, 2), (5, 6), (6, 3), (6, 5)]
     for move in expected_moves:
         assert move in valid_moves
+
+
+def test_possible_slots_that_the_player_can_change_position_to():
+    mock_game_state = Mock()
+    mock_game_state.get_piece = lambda row, col: Player.EMPTY
+    mock_self_knight = Piece.Knight('n', 4, 4, Player.PLAYER_2)
+    valid_moves = Piece.Knight.get_valid_peaceful_moves(mock_self_knight, mock_game_state)
+    assert len(valid_moves) == 8  # there is 8 optional slots are relevant
+
+    expected_moves = [(2, 3), (2, 5), (3, 2), (3, 6), (5, 2), (5, 6), (6, 3), (6, 5)]
+    for move in expected_moves:
+        assert move in valid_moves
+
