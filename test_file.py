@@ -49,7 +49,7 @@ def test_possible_slots_that_the_player_can_change_position_to():
         assert move in valid_moves
 
 
-def test_to_get_empty_slot_If_there_is_no_opposing_player_in_it():
+def test_to_get_empty_slot_if_there_is_no_opposing_player_in_it():
     mock_game_state = Mock()
     mock_game_state.get_piece = lambda row, col: Piece.Rook('r', row, col, Player.PLAYER_1)
     mock_self_knight = Piece.Knight('n', 4, 4, Player.PLAYER_2)
