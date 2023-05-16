@@ -23,3 +23,15 @@ def test_can_not_eat_a_player_from_my_team():
     mock_self_knight = Piece.Knight('n', 6, 4, Player.PLAYER_2)
     valid_moves = Piece.Knight.get_valid_piece_takes(mock_self_knight, mock_game_state)
     assert len(valid_moves) == 0  # All relevant slots contain players from my team
+
+
+def test_how_many_options_to_eat_i_have_from_the_other_team():
+    mock_game_state = Mock()
+    mock_game_state.get_piece = lambda row, col: Piece.Rook('r', row, col, Player.PLAYER_1)
+    mock_self_knight = Piece.Knight('n', 4, 4, Player.PLAYER_2)
+    valid_moves = Piece.Knight.get_valid_piece_takes(mock_self_knight, mock_game_state)
+    assert len(valid_moves) == 8  # all the optional slots are relevant
+
+    expected_moves = [(2, 3), (2, 5), (3, 2), (3, 6), (5, 2), (5, 6), (6, 3), (6, 5)]
+    for move in expected_moves:
+        assert move in valid_moves
