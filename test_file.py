@@ -63,3 +63,22 @@ def test_to_get_empty_slot_if_there_is_no_player_from_the_same_team_in_it():
     mock_self_knight = Piece.Knight('n', 4, 4, Player.PLAYER_2)
     valid_moves = Piece.Knight.get_valid_peaceful_moves(mock_self_knight, mock_game_state)
     assert len(valid_moves) == 0
+
+
+# ------------------integration tests---------------------
+
+
+def test_to_get_relevant_slots():
+    mock_game_state = Mock()
+    mock_game_state.get_valid_piece_takes = [(2, 3), (2, 5), (3, 2), (3, 6)]
+    mock_game_state.get_valid_peaceful_moves = [(5, 2), (5, 6), (6, 3), (6, 5)]
+
+    mock_self_knight = Piece.Knight('n', 4, 4, Player.PLAYER_2)
+
+    total_moves = Piece.Knight.get_valid_piece_moves(mock_self_knight, mock_game_state)
+
+    assert len(total_moves) == 8  # maximum 8 slots that are empty \ full
+
+    appeasement_moves = [(2, 3), (2, 5), (3, 2), (3, 6), (5, 2), (5, 6), (6, 3), (6, 5)]
+    for move in appeasement_moves:
+        assert move in total_moves
