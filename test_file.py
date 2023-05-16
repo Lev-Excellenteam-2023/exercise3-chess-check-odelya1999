@@ -93,3 +93,15 @@ def test_ai_options_in_board():
     total_score = ai_engine.chess_ai.evaluate_board(mock_self_ai, mock_game_state, Player.PLAYER_1)
     expected_evaluation_score = 50 * 8 * 8
     assert expected_evaluation_score == total_score
+
+
+# -----------------------system test-------------------
+
+def test_moving_a_player_on_the_board():
+    game_state = chess_engine.game_state()
+    game_state.move_piece((1, 2), (2, 2), False)
+    game_state.move_piece((6, 3), (4, 3), False)
+    game_state.move_piece((1, 1), (3, 1), False)
+    game_state.move_piece((7, 4), (3, 0), False)
+
+    assert game_state.checkmate_stalemate_checker() == 0
